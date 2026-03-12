@@ -1,5 +1,5 @@
 /* PSYCHE//OS — Service Worker */
-const CACHE = 'psycheos-v3';
+const CACHE = 'psycheos-v4';
 
 self.addEventListener('install', e => {
   e.waitUntil(
