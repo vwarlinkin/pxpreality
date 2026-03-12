@@ -1,0 +1,3322 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PSYCHE//OS — RPG Psychologique</title>
+  <meta name="theme-color" content="#00e5ff">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="PSYCHE//OS">
+<style>
+/* ═══════════════════════════════════════════════════════════
+   PSYCHE//OS — FEUILLE DE STYLE
+   Esthétique : Terminal futuriste cyberpunk / Console RPG
+   ═══════════════════════════════════════════════════════════ */
+
+/* ─── Variables CSS ───────────────────────────────────────── */
+:root {
+  --bg-void:        #06070d;
+  --bg-deep:        #0a0c15;
+  --bg-panel:       #0d101e;
+  --bg-panel-alt:   #111525;
+  --bg-hover:       #141830;
+  --border:         #1c2240;
+  --border-glow:    #1e2a50;
+
+  --cyan:           #00e5ff;
+  --cyan-dim:       #006880;
+  --cyan-faint:     #00e5ff18;
+  --amber:          #ffab00;
+  --amber-dim:      #7a5100;
+  --amber-faint:    #ffab0015;
+  --green:          #00ff88;
+  --green-dim:      #006635;
+  --red:            #ff3355;
+  --red-faint:      #ff335515;
+  --purple:         #a855f7;
+  --purple-faint:   #a855f715;
+
+  --text-bright:    #e8f0fe;
+  --text-main:      #8fa0c0;
+  --text-dim:       #3a4560;
+  --text-accent:    var(--cyan);
+
+  --font-mono:      'Courier New', 'Lucida Console', monospace;
+
+  --radius:         4px;
+  --transition:     0.18s ease;
+  --glow-cyan:      0 0 12px rgba(0, 229, 255, 0.4);
+  --glow-amber:     0 0 12px rgba(255, 171, 0, 0.4);
+}
+
+/* ─── Reset & Base ────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 14px;
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--bg-void);
+  color: var(--text-main);
+  font-family: var(--font-mono);
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* ─── Effets d'ambiance ────────────────────────────────────── */
+/* Lignes de scan CRT */
+.scanlines {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.08) 2px,
+    rgba(0, 0, 0, 0.08) 4px
+  );
+  mix-blend-mode: multiply;
+}
+
+/* Grille de fond */
+.grid-bg {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 40px 40px;
+  opacity: 0.3;
+}
+
+/* ─── En-tête ─────────────────────────────────────────────── */
+.header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 56px;
+  background: rgba(6, 7, 13, 0.95);
+  border-bottom: 1px solid var(--border-glow);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  z-index: 1000;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 1px 30px rgba(0, 229, 255, 0.06);
+}
+
+.header-logo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.logo-text {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--text-bright);
+  text-shadow: var(--glow-cyan);
+}
+
+.logo-sep {
+  color: var(--cyan);
+}
+
+.logo-sub {
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  letter-spacing: 0.2em;
+}
+
+.header-char {
+  font-size: 0.75rem;
+  color: var(--text-main);
+  text-align: center;
+  letter-spacing: 0.1em;
+}
+
+.header-char .hc-name {
+  color: var(--cyan);
+  font-size: 0.85rem;
+}
+
+.header-char .hc-lvl {
+  color: var(--amber);
+  margin-left: 8px;
+}
+
+.header-clock {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  letter-spacing: 0.1em;
+}
+
+/* ─── Navigation ──────────────────────────────────────────── */
+.nav {
+  position: fixed;
+  top: 56px; left: 0; right: 0;
+  height: 48px;
+  background: rgba(10, 12, 21, 0.98);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: stretch;
+  z-index: 999;
+  padding: 0 8px;
+  gap: 4px;
+}
+
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  cursor: pointer;
+  transition: all var(--transition);
+  position: relative;
+  white-space: nowrap;
+}
+
+.nav-btn:hover {
+  color: var(--text-main);
+  background: var(--bg-hover);
+}
+
+.nav-btn.active {
+  color: var(--cyan);
+  border-bottom-color: var(--cyan);
+  background: var(--cyan-faint);
+}
+
+.nav-icon {
+  font-size: 0.85rem;
+}
+
+/* ─── Main Layout ─────────────────────────────────────────── */
+.main {
+  position: relative;
+  z-index: 1;
+  padding-top: 120px; /* header + nav */
+  padding-bottom: 40px;
+  max-width: 900px;
+  margin: 0 auto;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+/* ─── Views ───────────────────────────────────────────────── */
+.view {
+  display: none;
+  flex-direction: column;
+  gap: 16px;
+  animation: fadeSlide 0.25s ease;
+}
+
+.view.active {
+  display: flex;
+}
+
+@keyframes fadeSlide {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Panels ──────────────────────────────────────────────── */
+.panel {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  position: relative;
+}
+
+/* Accent barre gauche */
+.panel::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 2px;
+  background: linear-gradient(180deg, var(--cyan), transparent);
+  opacity: 0.6;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-panel-alt);
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.panel-title {
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  color: var(--cyan);
+  font-weight: 700;
+}
+
+.panel-sub {
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  letter-spacing: 0.1em;
+}
+
+.panel-badge {
+  background: var(--amber-faint);
+  border: 1px solid var(--amber-dim);
+  color: var(--amber);
+  font-size: 0.65rem;
+  padding: 3px 10px;
+  border-radius: 2px;
+  letter-spacing: 0.15em;
+}
+
+/* ─── Tableau de Bord : Personnage ───────────────────────── */
+.char-panel::before {
+  background: linear-gradient(180deg, var(--amber), transparent);
+}
+
+.char-body {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 24px 20px;
+}
+
+.char-avatar {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, var(--cyan-faint) 0%, transparent 70%);
+  border: 1px solid var(--cyan-dim);
+  border-radius: var(--radius);
+  animation: avatarPulse 3s ease-in-out infinite;
+}
+
+@keyframes avatarPulse {
+  0%, 100% { box-shadow: 0 0 8px var(--cyan-dim); }
+  50%       { box-shadow: 0 0 24px var(--cyan), 0 0 48px var(--cyan-dim); }
+}
+
+.avatar-symbol {
+  font-size: 2.5rem;
+  color: var(--cyan);
+  position: relative;
+  z-index: 1;
+  text-shadow: var(--glow-cyan);
+  animation: symbolRotate 8s linear infinite;
+}
+
+@keyframes symbolRotate {
+  0%   { transform: rotate(0deg); }
+  25%  { transform: rotate(90deg); }
+  50%  { transform: rotate(180deg); }
+  75%  { transform: rotate(270deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.char-info {
+  flex: 1;
+}
+
+.char-name {
+  font-size: 1.2rem;
+  letter-spacing: 0.15em;
+  color: var(--text-bright);
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.char-title {
+  color: var(--amber);
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  margin-bottom: 8px;
+}
+
+.char-day {
+  color: var(--text-dim);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  margin-bottom: 4px;
+}
+
+.char-total-xp {
+  color: var(--green);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+}
+
+/* ─── Statistiques ───────────────────────────────────────── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--border);
+  margin: 0;
+}
+
+.stat-card {
+  background: var(--bg-panel);
+  padding: 16px 20px;
+  transition: background var(--transition);
+}
+
+.stat-card:hover {
+  background: var(--bg-hover);
+}
+
+.stat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.stat-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  color: var(--text-main);
+}
+
+.stat-icon {
+  font-size: 1rem;
+}
+
+.stat-level {
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  letter-spacing: 0.1em;
+}
+
+.stat-level span {
+  color: var(--amber);
+  font-size: 0.8rem;
+}
+
+/* Barre de progression XP */
+.xp-bar-wrap {
+  position: relative;
+  height: 6px;
+  background: var(--bg-deep);
+  border-radius: 1px;
+  overflow: hidden;
+  margin-bottom: 6px;
+  border: 1px solid var(--border);
+}
+
+.xp-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--cyan-dim), var(--cyan));
+  border-radius: 1px;
+  transition: width 0.5s ease;
+  position: relative;
+}
+
+.xp-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 4px; height: 100%;
+  background: white;
+  opacity: 0.8;
+  filter: blur(1px);
+}
+
+.xp-bar-fill.stat-emotional  { background: linear-gradient(90deg, #004d70, var(--cyan)); }
+.xp-bar-fill.stat-uncertainty { background: linear-gradient(90deg, #7a5100, var(--amber)); }
+.xp-bar-fill.stat-attention   { background: linear-gradient(90deg, #006635, var(--green)); }
+.xp-bar-fill.stat-discipline  { background: linear-gradient(90deg, #4a0080, var(--purple)); }
+
+.xp-text {
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  letter-spacing: 0.08em;
+}
+
+/* ─── Missions du Jour ───────────────────────────────────── */
+.daily-progress {
+  font-size: 0.75rem;
+  color: var(--green);
+  letter-spacing: 0.1em;
+}
+
+.daily-missions-list {
+  padding: 8px 0;
+}
+
+.mission-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  transition: background var(--transition);
+  cursor: pointer;
+}
+
+.mission-item:last-child {
+  border-bottom: none;
+}
+
+.mission-item:hover {
+  background: var(--bg-hover);
+}
+
+.mission-item.completed {
+  opacity: 0.5;
+}
+
+.mission-checkbox {
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--border-glow);
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+  transition: all var(--transition);
+  background: var(--bg-deep);
+}
+
+.mission-item.completed .mission-checkbox {
+  background: var(--green-dim);
+  border-color: var(--green);
+  color: var(--green);
+  box-shadow: 0 0 8px var(--green-dim);
+}
+
+.mission-check-icon {
+  font-size: 0.7rem;
+  display: none;
+}
+
+.mission-item.completed .mission-check-icon {
+  display: block;
+}
+
+.mission-body {
+  flex: 1;
+}
+
+.mission-text {
+  font-size: 0.78rem;
+  color: var(--text-main);
+  letter-spacing: 0.05em;
+  line-height: 1.5;
+  margin-bottom: 6px;
+}
+
+.mission-item.completed .mission-text {
+  text-decoration: line-through;
+}
+
+.mission-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.mission-stat-tag {
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  padding: 2px 8px;
+  border-radius: 2px;
+}
+
+.tag-emotional  { background: var(--cyan-faint);   color: var(--cyan);   border: 1px solid var(--cyan-dim); }
+.tag-uncertainty{ background: var(--amber-faint);  color: var(--amber);  border: 1px solid var(--amber-dim); }
+.tag-attention  { background: rgba(0,255,136,0.08);color: var(--green);  border: 1px solid var(--green-dim); }
+.tag-discipline { background: var(--purple-faint); color: var(--purple); border: 1px solid #6a2daa; }
+
+.mission-xp-badge {
+  font-size: 0.6rem;
+  color: var(--amber);
+  letter-spacing: 0.1em;
+}
+
+/* ─── Level Info ─────────────────────────────────────────── */
+.level-info {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.level-title {
+  font-size: 1rem;
+  color: var(--text-bright);
+  letter-spacing: 0.1em;
+}
+
+.level-title span {
+  color: var(--amber);
+}
+
+.level-skill {
+  font-size: 0.72rem;
+  color: var(--text-main);
+  letter-spacing: 0.08em;
+  padding-left: 12px;
+  border-left: 2px solid var(--cyan-dim);
+}
+
+.boss-card {
+  background: var(--red-faint);
+  border: 1px solid rgba(255, 51, 85, 0.25);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.boss-card-icon {
+  font-size: 1.5rem;
+  color: var(--red);
+  flex-shrink: 0;
+}
+
+.boss-card-info {}
+
+.boss-card-label {
+  font-size: 0.6rem;
+  color: var(--red);
+  letter-spacing: 0.2em;
+  margin-bottom: 4px;
+}
+
+.boss-card-name {
+  font-size: 0.9rem;
+  color: var(--text-bright);
+  letter-spacing: 0.12em;
+  margin-bottom: 4px;
+}
+
+.boss-card-desc {
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  letter-spacing: 0.06em;
+  line-height: 1.5;
+}
+
+/* ─── Vue Missions ───────────────────────────────────────── */
+.mission-filters {
+  display: flex;
+  gap: 8px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.15em;
+  padding: 5px 12px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.filter-btn:hover,
+.filter-btn.active {
+  background: var(--cyan-faint);
+  border-color: var(--cyan-dim);
+  color: var(--cyan);
+}
+
+.missions-list {
+  padding: 0;
+}
+
+.mission-level-group {
+  border-bottom: 1px solid var(--border);
+}
+
+.mission-level-group:last-child {
+  border-bottom: none;
+}
+
+.level-group-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  background: var(--bg-panel-alt);
+  border-bottom: 1px solid var(--border);
+}
+
+.level-group-num {
+  background: var(--border);
+  color: var(--text-dim);
+  font-size: 0.6rem;
+  padding: 2px 8px;
+  border-radius: 2px;
+  letter-spacing: 0.15em;
+}
+
+.level-group-name {
+  font-size: 0.72rem;
+  color: var(--text-main);
+  letter-spacing: 0.1em;
+}
+
+.level-group-locked {
+  margin-left: auto;
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  letter-spacing: 0.1em;
+}
+
+/* ─── Boss Encounter ─────────────────────────────────────── */
+.boss-form {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.boss-preview {
+  background: var(--red-faint);
+  border: 1px solid rgba(255, 51, 85, 0.25);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+}
+
+.boss-preview-name {
+  font-size: 0.9rem;
+  color: var(--red);
+  letter-spacing: 0.12em;
+  margin-bottom: 6px;
+}
+
+.boss-preview-desc {
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+  letter-spacing: 0.06em;
+}
+
+.boss-preview-level {
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  letter-spacing: 0.15em;
+  margin-top: 6px;
+}
+
+.difficulty-selector {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.diff-btn {
+  flex: 1;
+  min-width: 100px;
+  padding: 12px 8px;
+  background: var(--bg-deep);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  cursor: pointer;
+  transition: all var(--transition);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.diff-btn:hover {
+  border-color: var(--cyan-dim);
+  color: var(--text-main);
+}
+
+.diff-btn.active[data-diff="easy"]   { background: rgba(0,255,136,0.1); border-color: var(--green);  color: var(--green); }
+.diff-btn.active[data-diff="medium"] { background: var(--amber-faint);  border-color: var(--amber);  color: var(--amber); }
+.diff-btn.active[data-diff="hard"]   { background: var(--red-faint);    border-color: var(--red);    color: var(--red); }
+
+.diff-label { font-size: 0.7rem; letter-spacing: 0.12em; font-weight: 700; }
+.diff-xp    { font-size: 0.62rem; letter-spacing: 0.1em; }
+
+.outcome-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.outcome-btn {
+  padding: 10px 16px;
+  background: var(--bg-deep);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  text-align: left;
+  transition: all var(--transition);
+}
+
+.outcome-btn:hover { border-color: var(--border-glow); color: var(--text-main); }
+.outcome-btn.active { background: var(--cyan-faint); border-color: var(--cyan-dim); color: var(--cyan); }
+
+.boss-history {
+  padding: 0;
+}
+
+.boss-entry {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.boss-entry:last-child { border-bottom: none; }
+
+.boss-entry-icon {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.boss-entry-icon.win     { color: var(--green); }
+.boss-entry-icon.partial { color: var(--amber); }
+.boss-entry-icon.loss    { color: var(--red); }
+
+.boss-entry-info { flex: 1; }
+
+.boss-entry-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.boss-entry-name {
+  font-size: 0.78rem;
+  color: var(--text-bright);
+  letter-spacing: 0.1em;
+}
+
+.boss-entry-xp {
+  font-size: 0.65rem;
+  color: var(--amber);
+  letter-spacing: 0.1em;
+}
+
+.boss-entry-date {
+  font-size: 0.62rem;
+  color: var(--text-dim);
+  letter-spacing: 0.08em;
+  margin-bottom: 4px;
+}
+
+.boss-entry-notes {
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  letter-spacing: 0.05em;
+  line-height: 1.5;
+  font-style: italic;
+}
+
+.boss-empty, .journal-empty {
+  padding: 32px 20px;
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  line-height: 1.8;
+}
+
+/* ─── Formulaires ────────────────────────────────────────── */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-label {
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  color: var(--cyan);
+}
+
+.form-select,
+.form-textarea,
+.form-input {
+  background: var(--bg-deep);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-main);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  padding: 10px 14px;
+  outline: none;
+  transition: border-color var(--transition);
+  width: 100%;
+}
+
+.form-select:focus,
+.form-textarea:focus,
+.form-input:focus {
+  border-color: var(--cyan-dim);
+  box-shadow: 0 0 0 2px var(--cyan-faint);
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 80px;
+  line-height: 1.6;
+}
+
+.form-select option {
+  background: var(--bg-panel);
+}
+
+/* ─── Boutons ────────────────────────────────────────────── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: transparent;
+  border: 1px solid var(--cyan);
+  color: var(--cyan);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all var(--transition);
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--cyan);
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+
+.btn-primary:hover::before { opacity: 0.08; }
+.btn-primary:active::before { opacity: 0.15; }
+
+.btn-primary:hover {
+  box-shadow: var(--glow-cyan);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.15em;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.btn-secondary:hover {
+  border-color: var(--text-dim);
+  color: var(--text-main);
+}
+
+.btn-large {
+  font-size: 0.85rem;
+  padding: 14px 32px;
+}
+
+/* ─── Journal ────────────────────────────────────────────── */
+.journal-form {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.journal-xp-preview {
+  background: var(--amber-faint);
+  border: 1px solid var(--amber-dim);
+  border-radius: var(--radius);
+  padding: 10px 16px;
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  letter-spacing: 0.1em;
+}
+
+.journal-xp-preview .xp-value {
+  color: var(--amber);
+}
+
+.journal-entries {
+  padding: 0;
+}
+
+.journal-entry {
+  border-bottom: 1px solid var(--border);
+  padding: 16px 20px;
+}
+
+.journal-entry:last-child { border-bottom: none; }
+
+.journal-entry-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.journal-day {
+  font-size: 0.75rem;
+  color: var(--amber);
+  letter-spacing: 0.15em;
+}
+
+.journal-date {
+  font-size: 0.62rem;
+  color: var(--text-dim);
+  letter-spacing: 0.08em;
+}
+
+.journal-section {
+  margin-bottom: 10px;
+}
+
+.journal-section-label {
+  font-size: 0.6rem;
+  color: var(--cyan);
+  letter-spacing: 0.18em;
+  margin-bottom: 4px;
+}
+
+.journal-section-text {
+  font-size: 0.72rem;
+  color: var(--text-main);
+  line-height: 1.6;
+  letter-spacing: 0.04em;
+}
+
+.journal-boss-tag {
+  display: inline-block;
+  background: var(--red-faint);
+  border: 1px solid rgba(255,51,85,0.3);
+  color: var(--red);
+  font-size: 0.62rem;
+  padding: 2px 8px;
+  border-radius: 2px;
+  letter-spacing: 0.12em;
+  margin-top: 4px;
+}
+
+/* ─── Mode Focus ─────────────────────────────────────────── */
+.focus-panel {
+  padding-bottom: 24px;
+}
+
+.focus-panel::before {
+  background: linear-gradient(180deg, var(--green), transparent);
+}
+
+.focus-timer-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 32px 20px 16px;
+}
+
+.focus-ring {
+  position: relative;
+  width: 200px;
+  height: 200px;
+}
+
+.focus-ring-svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.ring-track {
+  fill: none;
+  stroke: var(--border);
+  stroke-width: 6;
+}
+
+.ring-progress {
+  fill: none;
+  stroke: var(--green);
+  stroke-width: 6;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1s linear;
+  filter: drop-shadow(0 0 8px var(--green));
+}
+
+.focus-time-display {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.focus-time {
+  font-size: 2.2rem;
+  color: var(--text-bright);
+  letter-spacing: 0.1em;
+  font-weight: 700;
+  text-shadow: 0 0 20px rgba(0,255,136,0.3);
+}
+
+.focus-time-label {
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  letter-spacing: 0.2em;
+  margin-top: 4px;
+}
+
+.focus-goal-group {
+  padding: 0 24px;
+  margin-bottom: 4px;
+}
+
+.focus-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 16px 24px;
+}
+
+.focus-duration {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 24px;
+  flex-wrap: wrap;
+}
+
+.dur-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  padding: 5px 10px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.dur-btn:hover   { border-color: var(--green-dim); color: var(--text-main); }
+.dur-btn.active  { background: rgba(0,255,136,0.1); border-color: var(--green); color: var(--green); }
+
+.focus-stats {
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  margin: 16px 0;
+}
+
+.focus-stat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 16px 8px;
+  border-right: 1px solid var(--border);
+}
+
+.focus-stat:last-child { border-right: none; }
+
+.focus-stat-val {
+  font-size: 1.3rem;
+  color: var(--green);
+  letter-spacing: 0.05em;
+}
+
+.focus-stat-label {
+  font-size: 0.58rem;
+  color: var(--text-dim);
+  letter-spacing: 0.12em;
+  text-align: center;
+}
+
+.focus-log {
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.focus-log-entry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: rgba(0,255,136,0.05);
+  border: 1px solid var(--green-dim);
+  border-radius: var(--radius);
+  font-size: 0.68rem;
+}
+
+.focus-log-entry-time { color: var(--text-dim); letter-spacing: 0.08em; }
+.focus-log-entry-goal { color: var(--text-main); flex: 1; padding: 0 12px; }
+.focus-log-entry-xp   { color: var(--green); letter-spacing: 0.1em; }
+
+/* ─── Notification XP ────────────────────────────────────── */
+.xp-notification {
+  position: fixed;
+  bottom: 32px;
+  right: 24px;
+  background: var(--bg-panel-alt);
+  border: 1px solid var(--cyan-dim);
+  border-radius: var(--radius);
+  color: var(--cyan);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  padding: 12px 20px;
+  z-index: 9000;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: all 0.3s ease;
+  box-shadow: var(--glow-cyan);
+  max-width: 320px;
+}
+
+.xp-notification.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ─── Modal Level-Up ─────────────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(6, 7, 13, 0.92);
+  z-index: 9998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(6px);
+}
+
+.modal-box {
+  background: var(--bg-panel);
+  border: 1px solid var(--amber-dim);
+  border-radius: var(--radius);
+  padding: 40px 32px;
+  max-width: 480px;
+  width: 90%;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  animation: modalIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.85); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.modal-glow {
+  position: absolute;
+  top: -40px; left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, var(--amber-faint), transparent 70%);
+  pointer-events: none;
+}
+
+.modal-title {
+  font-size: 1.1rem;
+  color: var(--amber);
+  letter-spacing: 0.2em;
+  margin-bottom: 24px;
+  text-shadow: var(--glow-amber);
+}
+
+.modal-content {
+  color: var(--text-main);
+  font-size: 0.78rem;
+  line-height: 1.8;
+  letter-spacing: 0.06em;
+  margin-bottom: 24px;
+}
+
+.modal-content .new-level-name {
+  font-size: 1rem;
+  color: var(--text-bright);
+  letter-spacing: 0.1em;
+  margin: 8px 0;
+}
+
+.modal-content .new-level-skill {
+  color: var(--cyan);
+  font-size: 0.72rem;
+}
+
+/* ─── Paramètres ─────────────────────────────────────────── */
+.settings-block {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.settings-danger-panel::before {
+  background: linear-gradient(180deg, var(--red), transparent);
+}
+
+.settings-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  background: var(--red-faint);
+  border: 1px solid rgba(255, 51, 85, 0.2);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+
+.settings-warning-icon {
+  font-size: 1.4rem;
+  color: var(--red);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.settings-warning-title {
+  font-size: 0.78rem;
+  color: var(--text-bright);
+  letter-spacing: 0.1em;
+  margin-bottom: 6px;
+}
+
+.settings-warning-desc {
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  letter-spacing: 0.06em;
+  line-height: 1.6;
+}
+
+.btn-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: transparent;
+  border: 1px solid var(--red);
+  color: var(--red);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all var(--transition);
+  width: 100%;
+}
+
+.btn-danger:hover {
+  background: var(--red-faint);
+  box-shadow: 0 0 12px rgba(255, 51, 85, 0.3);
+}
+
+.btn-danger:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.reset-confirm-box {
+  background: rgba(255, 51, 85, 0.05);
+  border: 1px solid rgba(255, 51, 85, 0.25);
+  border-radius: var(--radius);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: fadeSlide 0.2s ease;
+}
+
+.reset-confirm-text {
+  font-size: 0.72rem;
+  color: var(--text-main);
+  letter-spacing: 0.08em;
+}
+
+.reset-confirm-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.reset-confirm-actions .btn-secondary,
+.reset-confirm-actions .btn-danger {
+  flex: 1;
+  width: auto;
+}
+
+/* Infos sauvegarde */
+.save-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.save-info-cell {
+  background: var(--bg-panel-alt);
+  padding: 14px 16px;
+}
+
+.save-info-label {
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  letter-spacing: 0.15em;
+  margin-bottom: 4px;
+}
+
+.save-info-value {
+  font-size: 0.85rem;
+  color: var(--text-bright);
+  letter-spacing: 0.08em;
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-deep); }
+::-webkit-scrollbar-thumb { background: var(--border-glow); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--cyan-dim); }
+
+/* ─── Export / Import ────────────────────────────────────── */
+.backup-block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.backup-label {
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  color: var(--cyan);
+}
+
+.backup-desc {
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  letter-spacing: 0.05em;
+  line-height: 1.6;
+}
+
+.backup-desc code {
+  color: var(--amber);
+  background: var(--amber-faint);
+  padding: 1px 5px;
+  border-radius: 2px;
+}
+
+.backup-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 4px 0;
+}
+
+.btn-import-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: transparent;
+  border: 1px solid var(--cyan);
+  color: var(--cyan);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all var(--transition);
+  width: 100%;
+  text-align: center;
+}
+
+.btn-import-label:hover {
+  background: var(--cyan-faint);
+  box-shadow: var(--glow-cyan);
+}
+
+.import-status {
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  line-height: 1.5;
+  animation: fadeSlide 0.2s ease;
+}
+
+.import-status.success {
+  background: rgba(0,255,136,0.08);
+  border: 1px solid var(--green-dim);
+  color: var(--green);
+}
+
+.import-status.error {
+  background: var(--red-faint);
+  border: 1px solid rgba(255,51,85,0.3);
+  color: var(--red);
+}
+
+/* ─── Responsive ─────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .stats-grid { grid-template-columns: 1fr; }
+  .char-body { flex-direction: column; align-items: flex-start; }
+  .focus-controls { flex-direction: column; width: 100%; padding: 16px; }
+  .btn-primary, .btn-secondary { width: 100%; }
+  .header-char { display: none; }
+  .nav-label { display: none; }
+  .nav-btn { padding: 0 12px; }
+}
+
+/* ─── Utilitaires ─────────────────────────────────────────── */
+.text-cyan   { color: var(--cyan); }
+.text-amber  { color: var(--amber); }
+.text-green  { color: var(--green); }
+.text-red    { color: var(--red); }
+.text-dim    { color: var(--text-dim); }
+
+</style>
+
+<script id="pwa-injector">
+(function() {
+  // Manifest inline via blob
+  const manifestData = {
+    "name": "PSYCHE//OS — RPG Psychologique",
+    "short_name": "PSYCHE//OS",
+    "description": "Traite ta vie comme un jeu.",
+    "start_url": "./index.html",
+    "display": "standalone",
+    "orientation": "portrait-primary",
+    "background_color": "#06070d",
+    "theme_color": "#00e5ff",
+    "lang": "fr",
+    "icons": [
+      {"src": "data:image/png;base64,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", "sizes": "192x192", "type": "image/png", "purpose": "any maskable"},
+      {"src": "data:image/png;base64,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", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
+    ]
+  };
+  const manifestBlob = new Blob([JSON.stringify(manifestData)], {type:'application/manifest+json'});
+  const manifestURL  = URL.createObjectURL(manifestBlob);
+  const link = document.createElement('link');
+  link.rel  = 'manifest';
+  link.href = manifestURL;
+  document.head.appendChild(link);
+
+  // Service Worker — fichier réel sw.js (requis pour le cache offline)
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js', {scope: './'})
+      .then(r => console.log('[PSYCHE//OS] SW actif', r.scope))
+      .catch(e => console.warn('[PSYCHE//OS] SW échec:', e));
+  }
+
+  // Apple touch icon
+  const appleLink = document.createElement('link');
+  appleLink.rel  = 'apple-touch-icon';
+  appleLink.href = 'data:image/png;base64,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';
+  document.head.appendChild(appleLink);
+})();
+</script>
+</head>
+<body>
+
+  <!-- Effets visuels d'ambiance -->
+  <div class="scanlines" aria-hidden="true"></div>
+  <div class="grid-bg" aria-hidden="true"></div>
+
+  <!-- En-tête système -->
+  <header class="header">
+    <div class="header-logo">
+      <span class="logo-text">PSYCHE<span class="logo-sep">//</span>OS</span>
+      <span class="logo-sub">PSYCHOLOGICAL TRAINING MODULE v2.0</span>
+    </div>
+    <div class="header-char" id="headerCharInfo">
+      <!-- Injecté dynamiquement par JS -->
+    </div>
+    <div class="header-clock">
+      <span id="sysTime"></span>
+      <span id="sysDate"></span>
+    </div>
+  </header>
+
+  <!-- Navigation principale -->
+  <nav class="nav" role="navigation" aria-label="Navigation principale">
+    <button class="nav-btn active" data-view="dashboard" aria-label="Tableau de bord">
+      <span class="nav-icon">◈</span>
+      <span class="nav-label">TABLEAU</span>
+    </button>
+    <button class="nav-btn" data-view="missions" aria-label="Missions">
+      <span class="nav-icon">◧</span>
+      <span class="nav-label">MISSIONS</span>
+    </button>
+    <button class="nav-btn" data-view="boss" aria-label="Boss Encounter">
+      <span class="nav-icon">◬</span>
+      <span class="nav-label">BOSS</span>
+    </button>
+    <button class="nav-btn" data-view="journal" aria-label="Journal">
+      <span class="nav-icon">◪</span>
+      <span class="nav-label">JOURNAL</span>
+    </button>
+    <button class="nav-btn" data-view="focus" aria-label="Mode Focus">
+      <span class="nav-icon">◉</span>
+      <span class="nav-label">FOCUS</span>
+    </button>
+    <button class="nav-btn" data-view="settings" aria-label="Paramètres">
+      <span class="nav-icon">⚙</span>
+      <span class="nav-label">PARAMÈTRES</span>
+    </button>
+  </nav>
+
+  <!-- Zone de contenu principale -->
+  <main class="main" role="main">
+
+    <!-- ═══════════════════════════════════════════════
+         VUE : TABLEAU DE BORD
+    ═══════════════════════════════════════════════ -->
+    <section class="view active" id="view-dashboard">
+
+      <!-- Bloc personnage -->
+      <div class="panel char-panel">
+        <div class="panel-header">
+          <span class="panel-title">// PROFIL PERSONNAGE</span>
+          <span class="panel-badge" id="dashCharLevel">LVL ?</span>
+        </div>
+        <div class="char-body">
+          <div class="char-avatar" id="charAvatar">
+            <div class="avatar-glow"></div>
+            <div class="avatar-symbol" id="avatarSymbol">◈</div>
+          </div>
+          <div class="char-info">
+            <div class="char-name" id="dashCharName">L'EXPLORATEUR</div>
+            <div class="char-title" id="dashCharTitle">L'Observateur</div>
+            <div class="char-day">Jour <span id="dashDayCount">1</span> dans cette réalité</div>
+            <div class="char-total-xp">XP Total : <span id="dashTotalXP">0</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Statistiques psychologiques -->
+      <div class="panel stats-panel">
+        <div class="panel-header">
+          <span class="panel-title">// STATISTIQUES PSYCHOLOGIQUES</span>
+        </div>
+        <div class="stats-grid" id="statsGrid">
+          <!-- Injecté dynamiquement -->
+        </div>
+      </div>
+
+      <!-- Missions du jour -->
+      <div class="panel missions-daily-panel">
+        <div class="panel-header">
+          <span class="panel-title">// MISSIONS DU JOUR</span>
+          <span class="daily-progress" id="dailyMissionProgress">0/0</span>
+        </div>
+        <div class="daily-missions-list" id="dailyMissionsList">
+          <!-- Injecté dynamiquement -->
+        </div>
+      </div>
+
+      <!-- Niveau actuel / Boss actif -->
+      <div class="panel level-panel">
+        <div class="panel-header">
+          <span class="panel-title">// NIVEAU ACTUEL</span>
+        </div>
+        <div class="level-info" id="levelInfo">
+          <!-- Injecté dynamiquement -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ═══════════════════════════════════════════════
+         VUE : MISSIONS
+    ═══════════════════════════════════════════════ -->
+    <section class="view" id="view-missions">
+
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">// TOUTES LES MISSIONS</span>
+          <span class="panel-sub">Complétez des missions pour gagner de l'XP</span>
+        </div>
+
+        <!-- Filtres de niveau -->
+        <div class="mission-filters" id="missionFilters">
+          <!-- Injecté dynamiquement -->
+        </div>
+
+        <!-- Liste des missions -->
+        <div class="missions-list" id="allMissionsList">
+          <!-- Injecté dynamiquement -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ═══════════════════════════════════════════════
+         VUE : BOSS ENCOUNTER
+    ═══════════════════════════════════════════════ -->
+    <section class="view" id="view-boss">
+
+      <!-- Rencontres actives -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">// BOSS ENCOUNTERS</span>
+          <span class="panel-sub">Affrontez vos ennemis psychologiques</span>
+        </div>
+
+        <!-- Formulaire d'affrontement -->
+        <div class="boss-form">
+          <div class="form-group">
+            <label class="form-label">ENNEMI RENCONTRÉ</label>
+            <select class="form-select" id="bossSelect">
+              <option value="">-- Choisir un boss --</option>
+            </select>
+          </div>
+
+          <div class="boss-preview" id="bossPreview" style="display:none;">
+            <!-- Injecté dynamiquement -->
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">DIFFICULTÉ DE L'AFFRONTEMENT</label>
+            <div class="difficulty-selector" id="diffSelector">
+              <button class="diff-btn" data-diff="easy" data-xp="25">
+                <span class="diff-label">FAIBLE</span>
+                <span class="diff-xp">+25 XP</span>
+              </button>
+              <button class="diff-btn" data-diff="medium" data-xp="50">
+                <span class="diff-label">MODÉRÉ</span>
+                <span class="diff-xp">+50 XP</span>
+              </button>
+              <button class="diff-btn" data-diff="hard" data-xp="100">
+                <span class="diff-label">INTENSE</span>
+                <span class="diff-xp">+100 XP</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">RÉSULTAT DE L'AFFRONTEMENT</label>
+            <div class="outcome-selector">
+              <button class="outcome-btn active" data-outcome="win">
+                <span>⬟</span> VICTOIRE — J'ai maintenu ma conscience
+              </button>
+              <button class="outcome-btn" data-outcome="partial">
+                <span>◈</span> PARTIEL — J'ai résisté partiellement
+              </button>
+              <button class="outcome-btn" data-outcome="loss">
+                <span>◬</span> DÉFAITE — J'ai réagi inconsciemment
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">NOTES (optionnel)</label>
+            <textarea class="form-textarea" id="bossNotes" placeholder="Décrivez la situation, votre ressenti, ce que vous avez observé..."></textarea>
+          </div>
+
+          <button class="btn-primary" id="logBossBtn">
+            ◬ ENREGISTRER L'AFFRONTEMENT
+          </button>
+        </div>
+      </div>
+
+      <!-- Historique des affrontements -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">// HISTORIQUE DES AFFRONTEMENTS</span>
+        </div>
+        <div class="boss-history" id="bossHistory">
+          <!-- Injecté dynamiquement -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ═══════════════════════════════════════════════
+         VUE : JOURNAL
+    ═══════════════════════════════════════════════ -->
+    <section class="view" id="view-journal">
+
+      <!-- Nouvelle entrée -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">// NOUVELLE ENTRÉE DE JOURNAL</span>
+          <span class="panel-badge" id="journalDayBadge">JOUR 1</span>
+        </div>
+
+        <div class="journal-form">
+          <div class="form-group">
+            <label class="form-label">SITUATION VÉCUE</label>
+            <textarea class="form-textarea" id="journalSituation" placeholder="Décrivez la situation réelle que vous avez traversée aujourd'hui..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">BOSS RENCONTRÉ</label>
+            <select class="form-select" id="journalBoss">
+              <option value="aucun">Aucun boss particulier</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">DÉCISION PRISE</label>
+            <textarea class="form-textarea" id="journalDecision" placeholder="Quelle a été votre décision consciente ? Comment avez-vous réagi (ou non-réagi) ?"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">ENSEIGNEMENT DU JOUR</label>
+            <textarea class="form-textarea" id="journalLesson" placeholder="Qu'avez-vous appris sur vous-même aujourd'hui ?"></textarea>
+          </div>
+
+          <div class="journal-xp-preview">
+            XP à gagner : <span class="xp-value">+30 XP</span> répartis sur vos statistiques
+          </div>
+
+          <button class="btn-primary" id="saveJournalBtn">
+            ◪ ENREGISTRER L'ENTRÉE
+          </button>
+        </div>
+      </div>
+
+      <!-- Entrées précédentes -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">// ENTRÉES PRÉCÉDENTES</span>
+        </div>
+        <div class="journal-entries" id="journalEntries">
+          <!-- Injecté dynamiquement -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ═══════════════════════════════════════════════
+         VUE : MODE FOCUS
+    ═══════════════════════════════════════════════ -->
+    <section class="view" id="view-focus">
+
+      <div class="panel focus-panel">
+        <div class="panel-header">
+          <span class="panel-title">// MODE FOCUS — SESSION DEEP WORK</span>
+        </div>
+
+        <!-- Timer principal -->
+        <div class="focus-timer-wrap">
+          <div class="focus-ring" id="focusRing">
+            <svg class="focus-ring-svg" viewBox="0 0 200 200">
+              <circle class="ring-track" cx="100" cy="100" r="88"/>
+              <circle class="ring-progress" id="ringProgress" cx="100" cy="100" r="88"
+                      stroke-dasharray="552.92" stroke-dashoffset="0"/>
+            </svg>
+            <div class="focus-time-display">
+              <div class="focus-time" id="focusTime">20:00</div>
+              <div class="focus-time-label" id="focusLabel">PRÊT</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Objectif de session -->
+        <div class="form-group focus-goal-group">
+          <label class="form-label">OBJECTIF DE LA SESSION</label>
+          <input class="form-input" id="focusGoal" type="text" placeholder="Sur quoi allez-vous vous concentrer ?" />
+        </div>
+
+        <!-- Contrôles du timer -->
+        <div class="focus-controls">
+          <button class="btn-secondary" id="focusResetBtn">↺ RESET</button>
+          <button class="btn-primary btn-large" id="focusStartBtn">▶ COMMENCER</button>
+        </div>
+
+        <!-- Durée personnalisée -->
+        <div class="focus-duration">
+          <span class="form-label">DURÉE :</span>
+          <button class="dur-btn active" data-min="20">20 MIN</button>
+          <button class="dur-btn" data-min="25">25 MIN</button>
+          <button class="dur-btn" data-min="45">45 MIN</button>
+          <button class="dur-btn" data-min="60">60 MIN</button>
+        </div>
+
+        <!-- Stats de la session -->
+        <div class="focus-stats">
+          <div class="focus-stat">
+            <span class="focus-stat-val" id="focusSessionsCount">0</span>
+            <span class="focus-stat-label">SESSIONS</span>
+          </div>
+          <div class="focus-stat">
+            <span class="focus-stat-val" id="focusTotalTime">0</span>
+            <span class="focus-stat-label">MINUTES TOTALES</span>
+          </div>
+          <div class="focus-stat">
+            <span class="focus-stat-val" id="focusXpEarned">0</span>
+            <span class="focus-stat-label">XP FOCUS</span>
+          </div>
+        </div>
+
+        <!-- Journal de sessions -->
+        <div class="focus-log" id="focusLog">
+          <!-- Injecté dynamiquement -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ═══════════════════════════════════════════════
+         VUE : PARAMÈTRES
+    ═══════════════════════════════════════════════ -->
+    <section class="view" id="view-settings">
+
+      <!-- Infos sauvegarde -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">// DONNÉES DE SAUVEGARDE</span>
+        </div>
+        <div class="settings-block" id="saveInfoBlock">
+          <!-- Injecté dynamiquement -->
+        </div>
+      </div>
+
+      <!-- Export / Import -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">// SAUVEGARDE EXTERNE</span>
+          <span class="panel-sub">Exportez pour sauvegarder · Importez pour restaurer</span>
+        </div>
+        <div class="settings-block">
+
+          <!-- Export -->
+          <div class="backup-block">
+            <div class="backup-label">EXPORTER LES DONNÉES</div>
+            <div class="backup-desc">
+              Télécharge un fichier <code>.json</code> contenant toutes vos données
+              (personnage, XP, journal, boss, sessions). Conservez-le précieusement.
+            </div>
+            <button class="btn-primary" id="exportBtn">
+              ↓ TÉLÉCHARGER LA SAUVEGARDE
+            </button>
+          </div>
+
+          <div class="backup-divider"></div>
+
+          <!-- Import -->
+          <div class="backup-block">
+            <div class="backup-label">IMPORTER UNE SAUVEGARDE</div>
+            <div class="backup-desc">
+              Restaure vos données depuis un fichier exporté précédemment.
+              <strong style="color:var(--amber)">Attention : cela remplace les données actuelles.</strong>
+            </div>
+            <label class="btn-import-label" for="importFile">
+              ↑ CHOISIR UN FICHIER .JSON
+            </label>
+            <input type="file" id="importFile" accept=".json" style="display:none" />
+            <div id="importStatus" class="import-status" style="display:none"></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Réinitialisation -->
+      <div class="panel settings-danger-panel">
+        <div class="panel-header">
+          <span class="panel-title" style="color:var(--red)">// ZONE DANGEREUSE</span>
+        </div>
+        <div class="settings-block">
+          <div class="settings-warning">
+            <span class="settings-warning-icon">◬</span>
+            <div>
+              <div class="settings-warning-title">Réinitialiser toutes les données</div>
+              <div class="settings-warning-desc">
+                Cette action supprime définitivement votre personnage, tout votre XP,
+                vos niveaux, missions complétées, journal et sessions focus.
+                Cette action est <strong>irréversible</strong>.
+              </div>
+            </div>
+          </div>
+
+          <!-- Étape 1 : bouton d'avertissement -->
+          <div id="resetStep1">
+            <button class="btn-danger" id="resetBtn">
+              ◬ RÉINITIALISER TOUTES LES DONNÉES
+            </button>
+          </div>
+
+          <!-- Étape 2 : confirmation (masqué par défaut) -->
+          <div id="resetStep2" style="display:none;">
+            <div class="reset-confirm-box">
+              <div class="reset-confirm-text">
+                Tapez <strong style="color:var(--red)">RESET</strong> pour confirmer :
+              </div>
+              <input class="form-input" id="resetConfirmInput" type="text"
+                     placeholder="Tapez RESET ici..." autocomplete="off" />
+              <div class="reset-confirm-actions">
+                <button class="btn-secondary" id="resetCancelBtn">✕ ANNULER</button>
+                <button class="btn-danger" id="resetConfirmBtn" disabled>
+                  ◬ CONFIRMER LA RÉINITIALISATION
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Notification XP (popup flottant) -->
+  <div class="xp-notification" id="xpNotif" aria-live="polite"></div>
+
+  <!-- Modal level-up -->
+  <div class="modal-overlay" id="levelUpModal" style="display:none;" role="dialog" aria-modal="true">
+    <div class="modal-box">
+      <div class="modal-glow"></div>
+      <div class="modal-title">⬟ NIVEAU SUPÉRIEUR ⬟</div>
+      <div class="modal-content" id="levelUpContent"></div>
+      <button class="btn-primary" id="levelUpClose">CONTINUER L'EXPLORATION</button>
+    </div>
+  </div>
+
+  <!-- Script principal -->
+<script>
+/* ═══════════════════════════════════════════════════════════
+   PSYCHE//OS — LOGIQUE APPLICATIVE
+   RPG de développement psychologique
+   ═══════════════════════════════════════════════════════════ */
+
+'use strict';
+
+/* ─────────────────────────────────────────────────────────────
+   1. DONNÉES DU JEU
+   ───────────────────────────────────────────────────────────── */
+
+/** Seuils d'XP pour chaque niveau (index = niveau) */
+const XP_THRESHOLDS = [0, 100, 250, 500, 900, 1500];
+
+/** Noms lisibles des statistiques */
+const STAT_NAMES = {
+  emotionalMastery:      'Maîtrise Émotionnelle',
+  uncertaintyTolerance:  'Tolérance à l\'Incertitude',
+  attentionControl:      'Contrôle de l\'Attention',
+  behavioralDiscipline:  'Discipline Comportementale'
+};
+
+/** Classes CSS des barres d'XP par stat */
+const STAT_BAR_CLASS = {
+  emotionalMastery:      'stat-emotional',
+  uncertaintyTolerance:  'stat-uncertainty',
+  attentionControl:      'stat-attention',
+  behavioralDiscipline:  'stat-discipline'
+};
+
+/** Classes CSS des tags de mission */
+const STAT_TAG_CLASS = {
+  emotionalMastery:      'tag-emotional',
+  uncertaintyTolerance:  'tag-uncertainty',
+  attentionControl:      'tag-attention',
+  behavioralDiscipline:  'tag-discipline'
+};
+
+/** Icônes des statistiques */
+const STAT_ICONS = {
+  emotionalMastery:      '◈',
+  uncertaintyTolerance:  '◬',
+  attentionControl:      '◉',
+  behavioralDiscipline:  '◧'
+};
+
+/** Structure complète des niveaux, missions et boss */
+const GAME_DATA = {
+  levels: [
+    {
+      id: 1,
+      name: "L'Observateur",
+      skill: "Observer les impulsions, pensées et émotions sans les juger",
+      avatarSymbol: "◈",
+      boss: {
+        name: "Impulsion",
+        description: "Vérifier le téléphone sans raison, trader de façon impulsive, réagir sans réfléchir"
+      },
+      missions: [
+        {
+          id: "m1_1",
+          text: "Faire une pause de 10 secondes avant d'agir sur une impulsion. Observer l'envie sans y céder immédiatement.",
+          stat: "behavioralDiscipline",
+          xp: 25
+        },
+        {
+          id: "m1_2",
+          text: "Étiqueter mentalement une émotion ressentie aujourd'hui (ex : frustration, impatience, anxiété) sans la juger.",
+          stat: "emotionalMastery",
+          xp: 25
+        }
+      ]
+    },
+    {
+      id: 2,
+      name: "Le Stabilisateur",
+      skill: "Réguler ses émotions et retarder les réactions automatiques",
+      avatarSymbol: "◧",
+      boss: {
+        name: "Réaction",
+        description: "Répondre avec colère, frustration ou excitation sans pause consciente entre le stimulus et la réponse"
+      },
+      missions: [
+        {
+          id: "m2_1",
+          text: "Prendre 5 respirations lentes et profondes dès qu'une émotion forte apparaît. Sentir le corps se stabiliser.",
+          stat: "emotionalMastery",
+          xp: 35
+        },
+        {
+          id: "m2_2",
+          text: "Retarder volontairement une réaction à un message ou une situation irritante de 30 secondes minimum.",
+          stat: "uncertaintyTolerance",
+          xp: 35
+        }
+      ]
+    },
+    {
+      id: 3,
+      name: "Le Tolérant au Chaos",
+      skill: "Habiter l'incertitude et l'inconfort sans chercher à les fuir",
+      avatarSymbol: "◬",
+      boss: {
+        name: "Impatience",
+        description: "Forcer les décisions, vérifier compulsivement les résultats, incapacité à tolérer le vide ou l'attente"
+      },
+      missions: [
+        {
+          id: "m3_1",
+          text: "Attendre intentionnellement 2 minutes avant d'agir sur une envie ou une décision. Observer l'inconfort de l'attente.",
+          stat: "uncertaintyTolerance",
+          xp: 45
+        },
+        {
+          id: "m3_2",
+          text: "Rester assis sans stimulation (téléphone, musique, lecture) pendant 5 minutes. Observer l'ennui comme un phénomène neutre.",
+          stat: "attentionControl",
+          xp: 45
+        }
+      ]
+    },
+    {
+      id: 4,
+      name: "Le Stratège Mental",
+      skill: "Diriger et maintenir son attention de façon intentionnelle",
+      avatarSymbol: "◉",
+      boss: {
+        name: "Distraction",
+        description: "Pensées qui s'éparpillent, multitâche constant, incapacité à rester sur une seule chose plus de quelques minutes"
+      },
+      missions: [
+        {
+          id: "m4_1",
+          text: "Utiliser le Mode Focus pour travailler 20 minutes sur une seule tâche. Pas de notifications, pas de changement de tâche.",
+          stat: "attentionControl",
+          xp: 55
+        },
+        {
+          id: "m4_2",
+          text: "Chaque fois que vous remarquez votre esprit dériver, revenir consciemment à la tâche sans vous juger.",
+          stat: "behavioralDiscipline",
+          xp: 55
+        }
+      ]
+    },
+    {
+      id: 5,
+      name: "Le Joueur Conscient",
+      skill: "Observer la psychologie humaine de l'extérieur, comme un anthropologue",
+      avatarSymbol: "⬟",
+      boss: {
+        name: "Illusion Sociale",
+        description: "Se perdre dans le jeu social sans en être conscient, réagir aux stimuli sociaux sans voir les dynamiques sous-jacentes"
+      },
+      missions: [
+        {
+          id: "m5_1",
+          text: "Observer une interaction sociale (conversation, réunion, échange en ligne) et identifier les motivations non-dites des participants.",
+          stat: "emotionalMastery",
+          xp: 70
+        },
+        {
+          id: "m5_2",
+          text: "Écrire dans le journal une courte réflexion sur un comportement humain observé aujourd'hui. Identifier le schéma psychologique.",
+          stat: "behavioralDiscipline",
+          xp: 70
+        }
+      ]
+    }
+  ],
+
+  /** Tous les boss disponibles pour les rencontres */
+  bosses: [
+    { id: "impulsion",  name: "Impulsion",       level: 1, stat: "behavioralDiscipline", description: "L'envie d'agir immédiatement sans réfléchir" },
+    { id: "reaction",   name: "Réaction",         level: 2, stat: "emotionalMastery",     description: "Répondre émotionnellement sans pause consciente" },
+    { id: "impatience", name: "Impatience",       level: 3, stat: "uncertaintyTolerance", description: "Incapacité à attendre ou à tolérer l'inconnu" },
+    { id: "fomo",       name: "FOMO",             level: 2, stat: "uncertaintyTolerance", description: "Peur de manquer quelque chose, anxiété de l'occasion manquée" },
+    { id: "distraction",name: "Distraction",      level: 4, stat: "attentionControl",     description: "L'esprit qui fuit vers le confort plutôt que la tâche" },
+    { id: "doute",      name: "Doute",            level: 3, stat: "behavioralDiscipline", description: "Paralysie par l'incertitude, impossibilité de décider" },
+    { id: "illusion",   name: "Illusion Sociale", level: 5, stat: "emotionalMastery",     description: "Perdre sa conscience dans le jeu social" }
+  ]
+};
+
+/* ─────────────────────────────────────────────────────────────
+   2. ÉTAT PAR DÉFAUT
+   ───────────────────────────────────────────────────────────── */
+
+/** Structure de l'état initial d'un nouveau personnage */
+function createDefaultState() {
+  return {
+    character: {
+      name: "L'Explorateur",
+      dayCount: 1,
+      createdAt: new Date().toISOString(),
+      lastLoginDate: null
+    },
+    stats: {
+      emotionalMastery:     { xp: 0, level: 1 },
+      uncertaintyTolerance: { xp: 0, level: 1 },
+      attentionControl:     { xp: 0, level: 1 },
+      behavioralDiscipline: { xp: 0, level: 1 }
+    },
+    completedMissions: {},   // { "YYYY-MM-DD": ["missionId", ...] }
+    journal:           [],   // Entrées de journal
+    bossEncounters:    [],   // Affrontements enregistrés
+    focusSessions:     [],   // Sessions focus complétées
+    totalXpGained:     0
+  };
+}
+
+/* ─────────────────────────────────────────────────────────────
+   3. GESTION DU STATE (localStorage)
+   ───────────────────────────────────────────────────────────── */
+
+const STORAGE_KEY = 'psycheos_state';
+
+/** Charge l'état depuis localStorage ou crée un état par défaut */
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return createDefaultState();
+    return JSON.parse(raw);
+  } catch (e) {
+    console.warn('Erreur de chargement du state, réinitialisation.', e);
+    return createDefaultState();
+  }
+}
+
+/** Sauvegarde l'état dans localStorage */
+function saveState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch (e) {
+    console.error('Impossible de sauvegarder l\'état :', e);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   4. CALCULS DE JEU
+   ───────────────────────────────────────────────────────────── */
+
+/** Retourne la date du jour au format YYYY-MM-DD */
+function todayKey() {
+  return new Date().toISOString().split('T')[0];
+}
+
+/** Retourne le niveau max de toutes les stats (niveau du personnage) */
+function getCharacterLevel() {
+  const levels = Object.values(state.stats).map(s => s.level);
+  return Math.max(...levels);
+}
+
+/** Retourne le niveau moyen (arrondi) pour les missions débloquées */
+function getAverageLevel() {
+  const levels = Object.values(state.stats).map(s => s.level);
+  return Math.round(levels.reduce((a, b) => a + b, 0) / levels.length);
+}
+
+/** Données du niveau de jeu actuel (basé sur le niveau le plus élevé) */
+function getCurrentLevelData() {
+  const lvl = Math.min(getCharacterLevel(), GAME_DATA.levels.length);
+  return GAME_DATA.levels[lvl - 1];
+}
+
+/**
+ * Ajoute de l'XP à une statistique donnée.
+ * @param {string} stat   - Clé de la stat (ex: "emotionalMastery")
+ * @param {number} amount - Quantité d'XP à ajouter
+ * @returns {boolean} true si un level-up a eu lieu
+ */
+function addXP(stat, amount) {
+  const s = state.stats[stat];
+  if (!s || s.level >= XP_THRESHOLDS.length - 1) return false;
+
+  s.xp += amount;
+  state.totalXpGained += amount;
+
+  let leveledUp = false;
+
+  // Vérification des level-ups successifs
+  while (s.level < XP_THRESHOLDS.length - 1 && s.xp >= XP_THRESHOLDS[s.level]) {
+    s.level += 1;
+    leveledUp = true;
+  }
+
+  saveState();
+  return leveledUp;
+}
+
+/**
+ * Calcule la progression XP dans le niveau actuel (0 à 1).
+ * @param {string} stat
+ * @returns {number} Ratio de 0 à 1
+ */
+function getXPProgress(stat) {
+  const s = state.stats[stat];
+  if (s.level >= XP_THRESHOLDS.length - 1) return 1;
+  const low  = XP_THRESHOLDS[s.level - 1];
+  const high = XP_THRESHOLDS[s.level];
+  return (s.xp - low) / (high - low);
+}
+
+/**
+ * Retourne l'XP manquant pour le prochain niveau.
+ * @param {string} stat
+ */
+function getXPToNext(stat) {
+  const s = state.stats[stat];
+  if (s.level >= XP_THRESHOLDS.length - 1) return 0;
+  return XP_THRESHOLDS[s.level] - s.xp;
+}
+
+/** Retourne les missions complétées aujourd'hui */
+function getTodayCompletedMissions() {
+  return state.completedMissions[todayKey()] || [];
+}
+
+/** Vérifie si une mission a été complétée aujourd'hui */
+function isMissionDoneToday(missionId) {
+  return getTodayCompletedMissions().includes(missionId);
+}
+
+/** Marque une mission comme complétée et distribue l'XP */
+function completeMission(mission) {
+  if (isMissionDoneToday(mission.id)) return false;
+
+  const key = todayKey();
+  if (!state.completedMissions[key]) {
+    state.completedMissions[key] = [];
+  }
+  state.completedMissions[key].push(mission.id);
+
+  return addXP(mission.stat, mission.xp);
+}
+
+/** Annule la complétion d'une mission aujourd'hui et retire l'XP */
+function uncompleteMission(mission) {
+  const key = todayKey();
+  if (!state.completedMissions[key]) return;
+
+  state.completedMissions[key] = state.completedMissions[key].filter(id => id !== mission.id);
+
+  // Retirer l'XP (sans descendre sous 0 ni changer le niveau)
+  const s = state.stats[mission.stat];
+  s.xp = Math.max(0, s.xp - mission.xp);
+  state.totalXpGained = Math.max(0, state.totalXpGained - mission.xp);
+
+  saveState();
+}
+
+/** Incrémente le compteur de jours si c'est un nouveau jour */
+function checkDayAdvance() {
+  const today = todayKey();
+  if (state.character.lastLoginDate && state.character.lastLoginDate !== today) {
+    state.character.dayCount += 1;
+  }
+  state.character.lastLoginDate = today;
+  saveState();
+}
+
+/** Retourne toutes les missions disponibles jusqu'au niveau actuel */
+function getAvailableMissions() {
+  const maxLevel = Math.min(getCharacterLevel(), GAME_DATA.levels.length);
+  return GAME_DATA.levels
+    .filter(l => l.id <= maxLevel)
+    .flatMap(l => l.missions);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   5. RENDU DE L'INTERFACE
+   ───────────────────────────────────────────────────────────── */
+
+/** Restitue l'intégralité de l'interface */
+function renderAll() {
+  renderHeader();
+  renderDashboard();
+  renderMissions();
+  renderBossHistory();
+  renderJournalEntries();
+  renderFocusStats();
+  renderSettings();
+}
+
+/* ── 5a. En-tête ──────────────────────────────────────────── */
+function renderHeader() {
+  const el = document.getElementById('headerCharInfo');
+  const lvl = getCharacterLevel();
+  const levelData = getCurrentLevelData();
+
+  el.innerHTML = `
+    <div class="hc-name">${state.character.name}</div>
+    <div style="font-size:0.62rem; color:var(--text-dim); letter-spacing:0.1em;">
+      <span class="hc-lvl">LVL ${lvl}</span>
+      &nbsp;·&nbsp; ${levelData.name}
+      &nbsp;·&nbsp; Jour ${state.character.dayCount}
+    </div>
+  `;
+}
+
+/* ── 5b. Tableau de bord ──────────────────────────────────── */
+function renderDashboard() {
+  const lvl = getCharacterLevel();
+  const avgLvl = getAverageLevel();
+  const levelData = getCurrentLevelData();
+  const todayDone = getTodayCompletedMissions();
+  const availMissions = getAvailableMissions();
+
+  // Infos personnage
+  document.getElementById('dashCharLevel').textContent = `LVL ${lvl}`;
+  document.getElementById('dashCharName').textContent  = state.character.name;
+  document.getElementById('dashCharTitle').textContent = levelData.name;
+  document.getElementById('dashDayCount').textContent  = state.character.dayCount;
+  document.getElementById('dashTotalXP').textContent   = state.totalXpGained;
+  document.getElementById('avatarSymbol').textContent  = levelData.avatarSymbol;
+
+  // Grille de stats
+  const statsGrid = document.getElementById('statsGrid');
+  statsGrid.innerHTML = Object.entries(state.stats).map(([key, stat]) => {
+    const progress = getXPProgress(key) * 100;
+    const toNext   = getXPToNext(key);
+    const maxed    = stat.level >= XP_THRESHOLDS.length - 1;
+    return `
+      <div class="stat-card">
+        <div class="stat-header">
+          <div class="stat-name">
+            <span class="stat-icon" style="color:${statColor(key)}">${STAT_ICONS[key]}</span>
+            ${STAT_NAMES[key]}
+          </div>
+          <div class="stat-level">LVL <span>${stat.level}</span></div>
+        </div>
+        <div class="xp-bar-wrap">
+          <div class="xp-bar-fill ${STAT_BAR_CLASS[key]}" style="width:${progress.toFixed(1)}%"></div>
+        </div>
+        <div class="xp-text">
+          ${maxed
+            ? '<span style="color:var(--amber)">MAÎTRE</span>'
+            : `${stat.xp} XP · ${toNext} XP pour le prochain niveau`
+          }
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // Missions du jour
+  const missionsList = document.getElementById('dailyMissionsList');
+  const todayMissions = availMissions.slice(0, 6); // Montrer max 6 missions
+  const doneCount = todayMissions.filter(m => isMissionDoneToday(m.id)).length;
+
+  document.getElementById('dailyMissionProgress').textContent = `${doneCount}/${todayMissions.length}`;
+
+  missionsList.innerHTML = todayMissions.map(mission => {
+    const done = isMissionDoneToday(mission.id);
+    return `
+      <div class="mission-item ${done ? 'completed' : ''}" data-mission-id="${mission.id}">
+        <div class="mission-checkbox">
+          <span class="mission-check-icon">✓</span>
+        </div>
+        <div class="mission-body">
+          <div class="mission-text">${mission.text}</div>
+          <div class="mission-meta">
+            <span class="mission-stat-tag ${STAT_TAG_CLASS[mission.stat]}">
+              ${STAT_ICONS[mission.stat]} ${STAT_NAMES[mission.stat]}
+            </span>
+            <span class="mission-xp-badge">+${mission.xp} XP</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // Infos niveau actuel
+  const levelInfo = document.getElementById('levelInfo');
+  levelInfo.innerHTML = `
+    <div class="level-title">
+      Niveau <span>${lvl}</span> — ${levelData.name}
+    </div>
+    <div class="level-skill">${levelData.skill}</div>
+    <div class="boss-card">
+      <div class="boss-card-icon">◬</div>
+      <div class="boss-card-info">
+        <div class="boss-card-label">BOSS ACTIF</div>
+        <div class="boss-card-name">${levelData.boss.name}</div>
+        <div class="boss-card-desc">${levelData.boss.description}</div>
+      </div>
+    </div>
+    ${avgLvl < GAME_DATA.levels.length
+      ? `<div style="font-size:0.65rem; color:var(--text-dim); letter-spacing:0.1em;">
+           Prochain niveau : <span style="color:var(--cyan)">${GAME_DATA.levels[avgLvl]?.name || '—'}</span>
+         </div>`
+      : '<div style="font-size:0.65rem; color:var(--amber); letter-spacing:0.1em;">⬟ NIVEAU MAXIMUM ATTEINT</div>'
+    }
+  `;
+
+  // Attacher les événements sur les missions
+  document.querySelectorAll('#dailyMissionsList .mission-item').forEach(item => {
+    item.addEventListener('click', () => onMissionClick(item));
+  });
+}
+
+/* ── 5c. Vue Missions ─────────────────────────────────────── */
+function renderMissions() {
+  const maxLevel = getCharacterLevel();
+
+  // Filtres
+  const filtersEl = document.getElementById('missionFilters');
+  filtersEl.innerHTML = [
+    { id: 'all', label: 'TOUS' },
+    ...GAME_DATA.levels.map(l => ({ id: String(l.id), label: `LVL ${l.id}` }))
+  ].map((f, i) =>
+    `<button class="filter-btn ${i === 0 ? 'active' : ''}" data-filter="${f.id}">${f.label}</button>`
+  ).join('');
+
+  // Liste des missions par niveau
+  const listEl = document.getElementById('allMissionsList');
+  listEl.innerHTML = GAME_DATA.levels.map(level => {
+    const locked = level.id > maxLevel;
+    const missions = level.missions.map(mission => {
+      const done = isMissionDoneToday(mission.id);
+      return `
+        <div class="mission-item ${done ? 'completed' : ''} ${locked ? 'locked' : ''}"
+             data-mission-id="${mission.id}"
+             style="${locked ? 'pointer-events:none;opacity:0.4' : ''}">
+          <div class="mission-checkbox">
+            <span class="mission-check-icon">✓</span>
+          </div>
+          <div class="mission-body">
+            <div class="mission-text">${mission.text}</div>
+            <div class="mission-meta">
+              <span class="mission-stat-tag ${STAT_TAG_CLASS[mission.stat]}">
+                ${STAT_ICONS[mission.stat]} ${STAT_NAMES[mission.stat]}
+              </span>
+              <span class="mission-xp-badge">+${mission.xp} XP</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    return `
+      <div class="mission-level-group" data-level="${level.id}">
+        <div class="level-group-header">
+          <span class="level-group-num">NIVEAU ${level.id}</span>
+          <span class="level-group-name">${level.name}</span>
+          ${locked
+            ? '<span class="level-group-locked">🔒 VERROUILLÉ</span>'
+            : '<span class="level-group-locked" style="color:var(--green)">DÉBLOQUÉ</span>'
+          }
+        </div>
+        ${missions}
+      </div>
+    `;
+  }).join('');
+
+  // Filtres
+  filtersEl.addEventListener('click', e => {
+    const btn = e.target.closest('.filter-btn');
+    if (!btn) return;
+    filtersEl.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const filter = btn.dataset.filter;
+    document.querySelectorAll('.mission-level-group').forEach(group => {
+      group.style.display = (filter === 'all' || group.dataset.level === filter) ? '' : 'none';
+    });
+  });
+
+  // Clics sur les missions de la vue Missions
+  document.querySelectorAll('#allMissionsList .mission-item:not(.locked)').forEach(item => {
+    item.addEventListener('click', () => onMissionClick(item));
+  });
+}
+
+/* ── 5d. Boss Encounter ───────────────────────────────────── */
+function renderBossHistory() {
+  const history = document.getElementById('bossHistory');
+
+  if (state.bossEncounters.length === 0) {
+    history.innerHTML = `<div class="boss-empty">
+      ◬ Aucun affrontement enregistré<br>
+      <span style="color:var(--text-dim);font-size:0.65rem;">Loguez votre premier challenge psychologique ci-dessus</span>
+    </div>`;
+    return;
+  }
+
+  const outcomeIcons = { win: '⬟', partial: '◈', loss: '◬' };
+  const outcomeLabels = { win: 'VICTOIRE', partial: 'PARTIEL', loss: 'DÉFAITE' };
+
+  history.innerHTML = [...state.bossEncounters].reverse().slice(0, 15).map(enc => `
+    <div class="boss-entry">
+      <div class="boss-entry-icon ${enc.outcome}">${outcomeIcons[enc.outcome]}</div>
+      <div class="boss-entry-info">
+        <div class="boss-entry-header">
+          <span class="boss-entry-name">${enc.bossName}</span>
+          <span class="boss-entry-xp">+${enc.xpGained} XP</span>
+        </div>
+        <div class="boss-entry-date">${enc.date} · ${enc.difficulty.toUpperCase()} · ${outcomeLabels[enc.outcome]}</div>
+        ${enc.notes ? `<div class="boss-entry-notes">${enc.notes}</div>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ── 5e. Journal ─────────────────────────────────────────── */
+function renderJournalEntries() {
+  document.getElementById('journalDayBadge').textContent = `JOUR ${state.character.dayCount}`;
+
+  const container = document.getElementById('journalEntries');
+
+  if (state.journal.length === 0) {
+    container.innerHTML = `<div class="journal-empty">
+      ◪ Aucune entrée de journal<br>
+      <span style="color:var(--text-dim);font-size:0.65rem;">Commencez à documenter votre voyage psychologique</span>
+    </div>`;
+    return;
+  }
+
+  container.innerHTML = [...state.journal].reverse().map(entry => `
+    <div class="journal-entry">
+      <div class="journal-entry-header">
+        <span class="journal-day">JOUR ${entry.dayCount}</span>
+        <span class="journal-date">${entry.date}</span>
+      </div>
+      <div class="journal-section">
+        <div class="journal-section-label">SITUATION</div>
+        <div class="journal-section-text">${entry.situation}</div>
+        ${entry.boss && entry.boss !== 'aucun'
+          ? `<span class="journal-boss-tag">◬ ${entry.boss}</span>` : ''}
+      </div>
+      <div class="journal-section">
+        <div class="journal-section-label">DÉCISION</div>
+        <div class="journal-section-text">${entry.decision}</div>
+      </div>
+      ${entry.lesson ? `
+      <div class="journal-section">
+        <div class="journal-section-label">ENSEIGNEMENT</div>
+        <div class="journal-section-text">${entry.lesson}</div>
+      </div>` : ''}
+    </div>
+  `).join('');
+}
+
+/* ── 5f. Focus Mode ──────────────────────────────────────── */
+function renderFocusStats() {
+  const sessions  = state.focusSessions;
+  const totalMins = sessions.reduce((a, s) => a + s.minutes, 0);
+  const totalXp   = sessions.reduce((a, s) => a + s.xp, 0);
+
+  document.getElementById('focusSessionsCount').textContent = sessions.length;
+  document.getElementById('focusTotalTime').textContent     = totalMins;
+  document.getElementById('focusXpEarned').textContent      = totalXp;
+
+  const log = document.getElementById('focusLog');
+  if (sessions.length === 0) {
+    log.innerHTML = `<div style="text-align:center;color:var(--text-dim);font-size:0.68rem;letter-spacing:0.1em;padding:16px;">
+      Aucune session focus complétée
+    </div>`;
+    return;
+  }
+
+  log.innerHTML = [...sessions].reverse().slice(0, 8).map(s => `
+    <div class="focus-log-entry">
+      <span class="focus-log-entry-time">${s.date}</span>
+      <span class="focus-log-entry-goal">${s.goal || '—'}</span>
+      <span class="focus-log-entry-xp">+${s.xp} XP</span>
+    </div>
+  `).join('');
+}
+
+/* ── 5g. Paramètres ──────────────────────────────────────── */
+function renderSettings() {
+  const block = document.getElementById('saveInfoBlock');
+  if (!block) return;
+
+  const missionCount  = Object.values(state.completedMissions).flat().length;
+  const journalCount  = state.journal.length;
+  const bossCount     = state.bossEncounters.length;
+  const focusCount    = state.focusSessions.length;
+  const created       = state.character.createdAt
+    ? new Date(state.character.createdAt).toLocaleDateString('fr-FR')
+    : '—';
+
+  block.innerHTML = `
+    <div class="save-info-grid">
+      <div class="save-info-cell">
+        <div class="save-info-label">CRÉÉ LE</div>
+        <div class="save-info-value">${created}</div>
+      </div>
+      <div class="save-info-cell">
+        <div class="save-info-label">JOUR ACTUEL</div>
+        <div class="save-info-value">${state.character.dayCount}</div>
+      </div>
+      <div class="save-info-cell">
+        <div class="save-info-label">XP TOTAL GAGNÉ</div>
+        <div class="save-info-value" style="color:var(--amber)">${state.totalXpGained}</div>
+      </div>
+      <div class="save-info-cell">
+        <div class="save-info-label">NIVEAU PERSONNAGE</div>
+        <div class="save-info-value" style="color:var(--cyan)">${getCharacterLevel()}</div>
+      </div>
+      <div class="save-info-cell">
+        <div class="save-info-label">MISSIONS COMPLÉTÉES</div>
+        <div class="save-info-value">${missionCount}</div>
+      </div>
+      <div class="save-info-cell">
+        <div class="save-info-label">ENTRÉES JOURNAL</div>
+        <div class="save-info-value">${journalCount}</div>
+      </div>
+      <div class="save-info-cell">
+        <div class="save-info-label">BOSS AFFRONTÉS</div>
+        <div class="save-info-value">${bossCount}</div>
+      </div>
+      <div class="save-info-cell">
+        <div class="save-info-label">SESSIONS FOCUS</div>
+        <div class="save-info-value">${focusCount}</div>
+      </div>
+    </div>
+  `;
+}
+
+/* ── Initialisation des paramètres & reset ─────────────────── */
+function initSettings() {
+  const resetBtn        = document.getElementById('resetBtn');
+  const resetStep1      = document.getElementById('resetStep1');
+  const resetStep2      = document.getElementById('resetStep2');
+  const resetCancelBtn  = document.getElementById('resetCancelBtn');
+  const resetConfirmBtn = document.getElementById('resetConfirmBtn');
+  const resetInput      = document.getElementById('resetConfirmInput');
+
+  // ── Export ──────────────────────────────────────────────
+  document.getElementById('exportBtn').addEventListener('click', () => {
+    const filename = `psycheos_sauvegarde_${todayKey()}.json`;
+    const data     = JSON.stringify(state, null, 2);
+    const blob     = new Blob([data], { type: 'application/json' });
+    const url      = URL.createObjectURL(blob);
+
+    const a  = document.createElement('a');
+    a.href   = url;
+    a.download = filename;
+    a.click();
+
+    URL.revokeObjectURL(url);
+    showNotification(`Sauvegarde exportée : ${filename}`, true);
+  });
+
+  // ── Import ──────────────────────────────────────────────
+  document.getElementById('importFile').addEventListener('change', (e) => {
+    const file   = e.target.files[0];
+    const status = document.getElementById('importStatus');
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const parsed = JSON.parse(ev.target.result);
+
+        // Validation minimale : vérifier que les clés essentielles existent
+        if (!parsed.character || !parsed.stats || !parsed.totalXpGained === undefined) {
+          throw new Error('Format de fichier invalide.');
+        }
+
+        // Sauvegarder et recharger
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+        status.style.display = 'block';
+        status.className     = 'import-status success';
+        status.textContent   = `✓ Sauvegarde importée avec succès. Rechargement en cours...`;
+        setTimeout(() => location.reload(), 1400);
+
+      } catch (err) {
+        status.style.display = 'block';
+        status.className     = 'import-status error';
+        status.textContent   = `◬ Erreur : ${err.message} Vérifiez que le fichier est une sauvegarde PSYCHE//OS valide.`;
+      }
+    };
+    reader.readAsText(file);
+
+    // Reset l'input pour permettre de recharger le même fichier
+    e.target.value = '';
+  });
+
+  // ── Réinitialisation ────────────────────────────────────
+  // Étape 1 → Afficher la confirmation
+  resetBtn.addEventListener('click', () => {
+    resetStep1.style.display = 'none';
+    resetStep2.style.display = 'block';
+    resetInput.value = '';
+    resetConfirmBtn.disabled = true;
+    resetInput.focus();
+  });
+
+  // Annuler → revenir à l'étape 1
+  resetCancelBtn.addEventListener('click', () => {
+    resetStep2.style.display = 'none';
+    resetStep1.style.display = 'block';
+    resetInput.value = '';
+  });
+
+  // Activer le bouton confirmer seulement si "RESET" est tapé exactement
+  resetInput.addEventListener('input', () => {
+    resetConfirmBtn.disabled = resetInput.value !== 'RESET';
+  });
+
+  // Confirmation → supprimer et recharger
+  resetConfirmBtn.addEventListener('click', () => {
+    if (resetInput.value !== 'RESET') return;
+    localStorage.removeItem(STORAGE_KEY);
+    showNotification('Données supprimées. Redémarrage...', false);
+    setTimeout(() => location.reload(), 1200);
+  });
+}
+
+
+
+/* ── 6a. Complétion de mission ────────────────────────────── */
+function onMissionClick(itemEl) {
+  const missionId = itemEl.dataset.missionId;
+  if (!missionId) return;
+
+  // Trouver la mission dans les données
+  const mission = GAME_DATA.levels
+    .flatMap(l => l.missions)
+    .find(m => m.id === missionId);
+
+  if (!mission) return;
+
+  if (isMissionDoneToday(missionId)) {
+    // ── Démarquage : annuler la complétion ──
+    uncompleteMission(mission);
+    showNotification(`Mission démarquée · −${mission.xp} XP retiré`, false);
+  } else {
+    // ── Complétion normale ──
+    const leveledUp = completeMission(mission);
+    showNotification(`+${mission.xp} XP · ${STAT_NAMES[mission.stat]}`, true);
+    if (leveledUp) {
+      const stat = state.stats[mission.stat];
+      showLevelUpModal(mission.stat, stat.level);
+    }
+  }
+
+  renderAll();
+}
+
+/* ── 6b. Boss Encounter ───────────────────────────────────── */
+function initBossForm() {
+  const select     = document.getElementById('bossSelect');
+  const preview    = document.getElementById('bossPreview');
+  const logBtn     = document.getElementById('logBossBtn');
+  const journalBossSelect = document.getElementById('journalBoss');
+
+  // Peupler les selects de boss
+  const bossOptions = GAME_DATA.bosses.map(b =>
+    `<option value="${b.id}">${b.name} — Niveau ${b.level}</option>`
+  ).join('');
+
+  select.innerHTML += bossOptions;
+  journalBossSelect.innerHTML += GAME_DATA.bosses.map(b =>
+    `<option value="${b.name}">${b.name}</option>`
+  ).join('');
+
+  // Sélecteur de difficulté
+  let selectedDiff    = 'easy';
+  let selectedXP      = 25;
+  let selectedOutcome = 'win';
+
+  document.querySelectorAll('.diff-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      selectedDiff = btn.dataset.diff;
+      selectedXP   = parseInt(btn.dataset.xp);
+    });
+  });
+
+  document.querySelectorAll('.outcome-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.outcome-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      selectedOutcome = btn.dataset.outcome;
+    });
+  });
+
+  // Sélection d'un boss → afficher l'aperçu
+  select.addEventListener('change', () => {
+    const boss = GAME_DATA.bosses.find(b => b.id === select.value);
+    if (!boss) { preview.style.display = 'none'; return; }
+    preview.style.display = 'block';
+    preview.innerHTML = `
+      <div class="boss-preview-name">◬ ${boss.name}</div>
+      <div class="boss-preview-desc">${boss.description}</div>
+      <div class="boss-preview-level">Niveau ${boss.level} · ${STAT_NAMES[boss.stat]}</div>
+    `;
+  });
+
+  // Enregistrer l'affrontement
+  logBtn.addEventListener('click', () => {
+    const bossId = select.value;
+    if (!bossId) { showNotification('Sélectionnez un boss', false); return; }
+
+    const boss  = GAME_DATA.bosses.find(b => b.id === bossId);
+    const notes = document.getElementById('bossNotes').value.trim();
+
+    // Multiplicateur selon le résultat
+    const outcomeMultiplier = { win: 1, partial: 0.6, loss: 0.3 };
+    const finalXP = Math.round(selectedXP * outcomeMultiplier[selectedOutcome]);
+
+    // Enregistrement
+    const encounter = {
+      id:         Date.now(),
+      bossId:     bossId,
+      bossName:   boss.name,
+      difficulty: selectedDiff,
+      outcome:    selectedOutcome,
+      xpGained:   finalXP,
+      notes:      notes,
+      date:       new Date().toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' })
+    };
+
+    state.bossEncounters.push(encounter);
+    const leveledUp = addXP(boss.stat, finalXP);
+    saveState();
+
+    // Reset du formulaire
+    select.value = '';
+    preview.style.display = 'none';
+    document.getElementById('bossNotes').value = '';
+
+    showNotification(`Affrontement enregistré · +${finalXP} XP · ${STAT_NAMES[boss.stat]}`, true);
+    if (leveledUp) showLevelUpModal(boss.stat, state.stats[boss.stat].level);
+
+    renderAll();
+  });
+}
+
+/* ── 6c. Journal ─────────────────────────────────────────── */
+function initJournal() {
+  document.getElementById('saveJournalBtn').addEventListener('click', () => {
+    const situation = document.getElementById('journalSituation').value.trim();
+    const decision  = document.getElementById('journalDecision').value.trim();
+    const lesson    = document.getElementById('journalLesson').value.trim();
+    const boss      = document.getElementById('journalBoss').value;
+
+    if (!situation || !decision) {
+      showNotification('Remplissez au minimum la situation et la décision', false);
+      return;
+    }
+
+    const entry = {
+      id:       Date.now(),
+      dayCount: state.character.dayCount,
+      date:     new Date().toLocaleString('fr-FR', { dateStyle: 'medium', timeStyle: 'short' }),
+      situation,
+      decision,
+      lesson,
+      boss
+    };
+
+    state.journal.push(entry);
+
+    // Le journal distribue 10 XP sur chaque stat
+    const JournalXP = 10;
+    let anyLevelUp = false;
+    Object.keys(state.stats).forEach(stat => {
+      const lu = addXP(stat, JournalXP);
+      if (lu) anyLevelUp = true;
+    });
+
+    saveState();
+
+    // Vider le formulaire
+    ['journalSituation', 'journalDecision', 'journalLesson'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('journalBoss').value = 'aucun';
+
+    showNotification(`Journal enregistré · +${JournalXP} XP sur chaque stat`, true);
+    if (anyLevelUp) {
+      const stat = Object.keys(state.stats).find(k => state.stats[k].level > 1);
+      if (stat) showLevelUpModal(stat, state.stats[stat].level);
+    }
+
+    renderAll();
+  });
+}
+
+/* ── 6d. Mode Focus ──────────────────────────────────────── */
+function initFocusMode() {
+  let timerInterval  = null;
+  let isRunning      = false;
+  let totalSeconds   = 20 * 60;
+  let remainingSeconds = totalSeconds;
+  const CIRCUMFERENCE = 2 * Math.PI * 88; // Rayon 88 du SVG
+
+  const timeDisplay  = document.getElementById('focusTime');
+  const timeLabel    = document.getElementById('focusLabel');
+  const startBtn     = document.getElementById('focusStartBtn');
+  const resetBtn     = document.getElementById('focusResetBtn');
+  const ringProgress = document.getElementById('ringProgress');
+
+  /** Met à jour l'affichage du timer */
+  function updateDisplay() {
+    const min = Math.floor(remainingSeconds / 60).toString().padStart(2, '0');
+    const sec = (remainingSeconds % 60).toString().padStart(2, '0');
+    timeDisplay.textContent = `${min}:${sec}`;
+
+    // Barre de progression circulaire
+    const ratio  = remainingSeconds / totalSeconds;
+    const offset = CIRCUMFERENCE * (1 - ratio);
+    ringProgress.style.strokeDashoffset = offset;
+  }
+
+  /** Démarre ou met en pause le timer */
+  function toggleTimer() {
+    if (isRunning) {
+      // Pause
+      clearInterval(timerInterval);
+      isRunning = false;
+      startBtn.textContent = '▶ REPRENDRE';
+      timeLabel.textContent = 'PAUSE';
+    } else {
+      // Démarrage
+      isRunning = true;
+      startBtn.textContent = '⏸ PAUSE';
+      timeLabel.textContent = 'EN FOCUS';
+
+      timerInterval = setInterval(() => {
+        remainingSeconds -= 1;
+        updateDisplay();
+
+        if (remainingSeconds <= 0) {
+          completeSession();
+        }
+      }, 1000);
+    }
+  }
+
+  /** Session terminée */
+  function completeSession() {
+    clearInterval(timerInterval);
+    isRunning = false;
+    timeLabel.textContent = 'TERMINÉ ✓';
+    startBtn.textContent = '▶ NOUVELLE SESSION';
+
+    const goal    = document.getElementById('focusGoal').value.trim();
+    const minutes = Math.round(totalSeconds / 60);
+    const xpGained = Math.round(minutes * 2.5); // 2.5 XP par minute
+
+    const session = {
+      id:      Date.now(),
+      date:    new Date().toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }),
+      minutes,
+      goal:    goal || 'Session sans objectif défini',
+      xp:      xpGained
+    };
+
+    state.focusSessions.push(session);
+    const leveledUp = addXP('attentionControl', Math.round(xpGained * 0.6));
+    addXP('behavioralDiscipline', Math.round(xpGained * 0.4));
+    saveState();
+
+    showNotification(`Session Focus terminée · +${xpGained} XP distribués`, true);
+    if (leveledUp) showLevelUpModal('attentionControl', state.stats.attentionControl.level);
+
+    renderFocusStats();
+
+    // Réinitialiser pour la prochaine session
+    setTimeout(() => {
+      remainingSeconds = totalSeconds;
+      updateDisplay();
+    }, 2000);
+  }
+
+  /** Réinitialise le timer */
+  function resetTimer() {
+    clearInterval(timerInterval);
+    isRunning = false;
+    remainingSeconds = totalSeconds;
+    startBtn.textContent = '▶ COMMENCER';
+    timeLabel.textContent = 'PRÊT';
+    updateDisplay();
+  }
+
+  startBtn.addEventListener('click', () => {
+    if (remainingSeconds <= 0) {
+      resetTimer();
+      return;
+    }
+    toggleTimer();
+  });
+
+  resetBtn.addEventListener('click', resetTimer);
+
+  // Sélecteurs de durée
+  document.querySelectorAll('.dur-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (isRunning) return; // Pas de changement pendant une session
+      document.querySelectorAll('.dur-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      totalSeconds     = parseInt(btn.dataset.min) * 60;
+      remainingSeconds = totalSeconds;
+      updateDisplay();
+    });
+  });
+
+  updateDisplay();
+}
+
+/* ─────────────────────────────────────────────────────────────
+   7. NOTIFICATIONS ET MODALS
+   ───────────────────────────────────────────────────────────── */
+
+let notifTimeout = null;
+
+/**
+ * Affiche une notification XP flottante.
+ * @param {string}  message - Texte à afficher
+ * @param {boolean} success - true = succès (cyan), false = erreur (rouge)
+ */
+function showNotification(message, success = true) {
+  const el = document.getElementById('xpNotif');
+  el.textContent = message;
+  el.style.borderColor = success ? 'var(--cyan-dim)'  : 'rgba(255,51,85,0.5)';
+  el.style.color        = success ? 'var(--cyan)'      : 'var(--red)';
+  el.style.boxShadow    = success ? 'var(--glow-cyan)' : '0 0 12px rgba(255,51,85,0.4)';
+  el.classList.add('show');
+
+  if (notifTimeout) clearTimeout(notifTimeout);
+  notifTimeout = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+/**
+ * Affiche le modal de level-up.
+ * @param {string} stat    - Clé de la statistique
+ * @param {number} newLevel - Nouveau niveau
+ */
+function showLevelUpModal(stat, newLevel) {
+  const levelData = GAME_DATA.levels[newLevel - 1];
+  const modal    = document.getElementById('levelUpModal');
+  const content  = document.getElementById('levelUpContent');
+
+  content.innerHTML = `
+    <div style="color:var(--text-dim); font-size:0.68rem; letter-spacing:0.15em; margin-bottom:8px;">
+      ${STAT_NAMES[stat]}
+    </div>
+    <div class="new-level-name">${levelData ? levelData.name : 'Maître'}</div>
+    <div class="new-level-skill" style="margin:12px 0">
+      ${levelData ? levelData.skill : 'Vous avez maîtrisé cette statistique'}
+    </div>
+    <div style="color:var(--text-dim);font-size:0.68rem;letter-spacing:0.1em;margin-top:8px;">
+      ${levelData
+        ? `Nouvelle compétence débloquée · Affrontez <span style="color:var(--red)">${levelData.boss.name}</span>`
+        : 'Niveau maximum atteint dans cette statistique'
+      }
+    </div>
+  `;
+
+  modal.style.display = 'flex';
+  document.getElementById('levelUpClose').addEventListener('click', () => {
+    modal.style.display = 'none';
+  }, { once: true });
+}
+
+/* ─────────────────────────────────────────────────────────────
+   8. NAVIGATION
+   ───────────────────────────────────────────────────────────── */
+
+function initNavigation() {
+  const navBtns = document.querySelectorAll('.nav-btn');
+  const views   = document.querySelectorAll('.view');
+
+  navBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetView = btn.dataset.view;
+
+      navBtns.forEach(b => b.classList.remove('active'));
+      views.forEach(v => v.classList.remove('active'));
+
+      btn.classList.add('active');
+      document.getElementById(`view-${targetView}`)?.classList.add('active');
+
+      // Rafraîchir les vues au changement
+      if (targetView === 'missions') renderMissions();
+      if (targetView === 'journal')  renderJournalEntries();
+      if (targetView === 'boss')     renderBossHistory();
+      if (targetView === 'focus')    renderFocusStats();
+      if (targetView === 'settings') renderSettings();
+    });
+  });
+}
+
+/* ─────────────────────────────────────────────────────────────
+   9. HORLOGE SYSTÈME
+   ───────────────────────────────────────────────────────────── */
+
+function initClock() {
+  function update() {
+    const now = new Date();
+    document.getElementById('sysTime').textContent = now.toLocaleTimeString('fr-FR');
+    document.getElementById('sysDate').textContent = now.toLocaleDateString('fr-FR', {
+      weekday: 'short', day: '2-digit', month: '2-digit'
+    });
+  }
+  update();
+  setInterval(update, 1000);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   10. UTILITAIRES
+   ───────────────────────────────────────────────────────────── */
+
+/** Retourne la couleur CSS associée à une stat */
+function statColor(stat) {
+  const colors = {
+    emotionalMastery:      'var(--cyan)',
+    uncertaintyTolerance:  'var(--amber)',
+    attentionControl:      'var(--green)',
+    behavioralDiscipline:  'var(--purple)'
+  };
+  return colors[stat] || 'var(--text-main)';
+}
+
+/* ─────────────────────────────────────────────────────────────
+   11. INITIALISATION
+   ───────────────────────────────────────────────────────────── */
+
+/** État global de l'application */
+let state;
+
+/** Point d'entrée principal */
+function init() {
+  // Charger l'état
+  state = loadState();
+
+  // Vérifier si c'est un nouveau jour
+  checkDayAdvance();
+
+  // Initialiser les modules
+  initNavigation();
+  initClock();
+  initBossForm();
+  initJournal();
+  initFocusMode();
+  initSettings();
+
+  // Premier rendu
+  renderAll();
+
+  console.log('[PSYCHE//OS] Système initialisé. Bonne exploration.', {
+    niveau:        getCharacterLevel(),
+    jour:          state.character.dayCount,
+    xpTotal:       state.totalXpGained,
+    missionsToday: getTodayCompletedMissions().length
+  });
+}
+
+// Lancer l'application quand le DOM est prêt
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+
+
+</script>
+</body>
+</html>
